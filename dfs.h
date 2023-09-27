@@ -111,8 +111,8 @@ void backtrackAndPrintPathPointerMap(
     const Pair &dest
     )
 {
-    // Grid path = Grid(y_size, std::vector<int>(x_size, 0));
     int* path = new int[x_size * y_size];
+    std::fill(path, path+x_size * y_size, 0);
     std::vector<Pair> backtrack;
     Pair curr = dest;
     path[GETMAPINDEX(curr.second, curr.first, x_size, y_size)] = 1;
@@ -121,8 +121,8 @@ void backtrackAndPrintPathPointerMap(
     {
         for (int i = 0; i < 8; i++)
         {
-            int newy = curr.first + dR[i];
-            int newx = curr.second + dC[i];
+            int newy = curr.first + dY[i];
+            int newx = curr.second + dX[i];
             if (isWithinBounds(newy-1, newx-1, y_size, x_size) and visited[GETMAPINDEX(newx, newy, x_size, y_size)] == visited[GETMAPINDEX(curr.second, curr.first, x_size, y_size)] - 1)
             {
                 curr = std::make_pair(newy, newx);
@@ -162,6 +162,7 @@ void performDfsPointerMap(
     auto start = std::chrono::high_resolution_clock::now();
 
     int *visited = new int[x_size * y_size];
+    std::fill(visited, visited+x_size * y_size, 0);
     std::stack<Pair> OPEN;
     OPEN.push(src);
     visited[GETMAPINDEX(src.second, src.first, x_size, y_size)] = 1;
@@ -170,8 +171,8 @@ void performDfsPointerMap(
     {
         itr++;
         Pair curr = OPEN.top();
-        curr.first = curr.first;
-        curr.second = curr.second;
+        // curr.first = curr.first;
+        // curr.second = curr.second;
         OPEN.pop();
         for (int i = 0; i < 8; i++)
         {

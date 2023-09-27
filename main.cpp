@@ -2,7 +2,7 @@
 #include "dijkstra.h"
 #include "astar.h"
 
-#define MAP_NUMBER 2
+#define MAP_NUMBER 1
 
 int main()
 {
@@ -24,7 +24,8 @@ int main()
             {1, 0, 1, 1, 1, 1, 0, 1, 1, 1},
             {1, 1, 1, 0, 0, 0, 1, 0, 0, 1}};
     Pair src = std::make_pair(8, 0);
-    Pair dest = std::make_pair(0, 9);
+    Pair dest = std::make_pair(8, 2);
+    // Pair dest = std::make_pair(0, 9);
 
     #elif MAP_NUMBER == 2
     int y_size = 4, x_size = 4;
@@ -61,10 +62,12 @@ int main()
             printf("%d ", i);
         printf("\n");
     }
-    printf("\n");
-    // performDfs(vec_map, src, dest);
-    printf("\n------------------------------------------\n");
+    printf("\n--------------------DFS----------------------\n");
+    performDfs(vec_map, src, dest);
+    printf("\n--------------------DIJKSTRA----------------------\n");
     dijkstra(vec_map, src, dest);
+    printf("\n--------------------A STAR----------------------\n");
+    aStarSearch(vec_map, src, dest);
 
 
     //////////////////////////////////////
@@ -96,11 +99,13 @@ int main()
     dest.first += 1;
     dest.second += 1;
 
-    // performDfsPointerMap(map_ptr, x_size, y_size, src, dest);
+    printf("\n--------------------DFS POINTER MAP----------------------\n");
+    performDfsPointerMap(map_ptr, x_size, y_size, src, dest);
+    printf("\n--------------------DIJKSTRA POINTER MAP---------------------\n");
+    dijkstraPointerMap(map_ptr, x_size, y_size, src, dest);
+    printf("\n--------------------A STAR POINTER MAP----------------------\n");
+    aStartSearchPointerMap(map_ptr, x_size, y_size, src, dest);
     delete map_ptr;
-
-    /////////////////////////////////////
-    // DIJKSTRA'S
     
 
     return (0);
