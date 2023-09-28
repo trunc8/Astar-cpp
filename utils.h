@@ -9,11 +9,13 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <queue>
+#include <limits.h>
 
 typedef std::pair<int, int> Pair;
 typedef std::vector<std::vector<int>> Grid;
 
-#define NUMOFDIRS 8
+#define NUMOFDIRS 9
 #define GETMAPINDEX(X, Y, XSIZE, YSIZE) ((Y - 1) * XSIZE + (X - 1))
 
 /**
@@ -33,11 +35,11 @@ Example: (x,y)
 (1,y_size) .... (x_size,y_size)
 */
 
-int dR[NUMOFDIRS] = {-1, -1, -1, 0, 0, 1, 1, 1};
-int dC[NUMOFDIRS] = {-1, 0, 1, -1, 1, -1, 0, 1};
+int dR[NUMOFDIRS] = {-1, -1, -1, 0, 0, 1, 1, 1, 0};
+int dC[NUMOFDIRS] = {-1, 0, 1, -1, 1, -1, 0, 1, 0};
 
-int dY[NUMOFDIRS] = {-1, -1, -1, 0, 0, 1, 1, 1};
-int dX[NUMOFDIRS] = {-1, 0, 1, -1, 1, -1, 0, 1};
+int dY[NUMOFDIRS] = {-1, -1, -1, 0, 0, 1, 1, 1, 0};
+int dX[NUMOFDIRS] = {-1, 0, 1, -1, 1, -1, 0, 1, 0};
 
 bool isWithinBounds(int r, int c, int r_size, int c_size)
 {
