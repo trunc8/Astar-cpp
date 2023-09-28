@@ -85,6 +85,15 @@ void backtrackPath3D(
     printf("SUCCESS\n\n");
 }
 
+Grid getAStarAsHeuristic(
+    const Grid &map,
+    const Node &goal_node,
+    const std::vector<Pair> &target_traj
+)
+{
+    return Grid();
+}
+
 void aStarSearch3D(
     const Grid &map,
     const Pair &src,
@@ -112,14 +121,18 @@ void aStarSearch3D(
         target_traj_nodes[i] = {target_traj[i].second, target_traj[i].first, i};
     }
 
+    // Grid astar_as_heuristic = getAStarAsHeuristic();
+
     // Defining lambda functions for convenience
     auto getgval = [&g](const Node &n)
     {
         return g[{n.x, n.y, n.t}];
     };
+    int epsilon = 1; // weight for A*
     auto gethval = [&getgval](const Node &n)
     {
-        return getgval(n); // epsilon = 0
+        return getgval(n);
+        // return getgval(n) + epsilon*astar_as_heuristic[n.y][n.x];
         // TODO: Add heuristic
     };
 
@@ -153,6 +166,7 @@ void aStarSearch3D(
                 {
                     g[goal_node] = getgval(curr_node);
                     OPEN.push(goal_node);
+                    dest_node = curr_node;
                     continue;
                 }
             }

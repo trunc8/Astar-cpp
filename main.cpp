@@ -38,7 +38,7 @@ int main()
             {10, 40, 100, 40}};
     Pair src({3,0});
     Pair dest({0,3});
-    std::vector<Pair> target_traj({{0,3},{1,3},{2,3},{3,3},{3,3}});
+    std::vector<Pair> target_traj({{0,3},{1,3},{2,3},{2,3},{3,3}});
     // std::vector<Pair> target_traj({{0,3},{1,3},{0,3},{1,3},{2,3}});
 
     #endif
