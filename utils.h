@@ -45,3 +45,8 @@ bool isWithinBounds(int r, int c, int r_size, int c_size)
 {
     return r >= 0 && r < r_size && c >= 0 && c < c_size;
 }
+
+bool isWithinBounds3D(int r, int c, int t, int r_size, int c_size, int t_size)
+{
+    return r >= 0 && r < r_size && c >= 0 && c < c_size && t >= 0 && t <= t_size;
+}

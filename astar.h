@@ -85,7 +85,7 @@ void aStarSearch(const Grid &map, const Pair &src, const Pair &dest)
 }
 
 
-void aStartSearchPointerMap(
+void aStarSearchPointerMap(
     int *map,
     int x_size,
     int y_size,

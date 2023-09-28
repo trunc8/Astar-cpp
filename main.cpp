@@ -24,8 +24,9 @@ int main()
             {1, 0, 0, 0, 0, 1, 0, 0, 0, 1},
             {1, 0, 1, 1, 1, 1, 0, 1, 1, 1},
             {1, 1, 1, 0, 0, 0, 1, 0, 0, 1}};
-    Pair src = std::make_pair(8, 0);
+    Pair src = std::make_pair(2, 0);
     Pair dest = std::make_pair(8, 2);
+    std::vector<Pair> target_traj({{0,2},{1,2},{2,3},{2,3},{3,2}});
     // Pair dest = std::make_pair(0, 9);
 
     #elif MAP_NUMBER == 2
@@ -38,8 +39,8 @@ int main()
             {10, 40, 100, 40}};
     Pair src({3,0});
     Pair dest({0,3});
-    std::vector<Pair> target_traj({{0,3},{1,3},{2,3},{2,3},{3,3}});
-    // std::vector<Pair> target_traj({{0,3},{1,3},{0,3},{1,3},{2,3}});
+    // std::vector<Pair> target_traj({{0,3},{1,3},{2,3},{2,3},{3,3}});
+    std::vector<Pair> target_traj({{0,3},{1,3},{0,3},{1,3},{2,3}});
 
     #endif
 
@@ -103,13 +104,19 @@ int main()
     src.second += 1;
     dest.first += 1;
     dest.second += 1;
+    for(int i=0; i<target_traj.size(); i++){
+        target_traj[i].first += 1;
+        target_traj[i].second += 1;
+    }
 
-    // printf("\n--------------------DFS POINTER MAP----------------------\n");
-    // performDfsPointerMap(map_ptr, x_size, y_size, src, dest);
-    // printf("\n--------------------DIJKSTRA POINTER MAP---------------------\n");
-    // dijkstraPointerMap(map_ptr, x_size, y_size, src, dest);
-    // printf("\n--------------------A STAR POINTER MAP----------------------\n");
-    // aStartSearchPointerMap(map_ptr, x_size, y_size, src, dest);
+    printf("\n--------------------DFS POINTER MAP----------------------\n");
+    performDfsPointerMap(map_ptr, x_size, y_size, src, dest);
+    printf("\n--------------------DIJKSTRA POINTER MAP---------------------\n");
+    dijkstraPointerMap(map_ptr, x_size, y_size, src, dest);
+    printf("\n--------------------A STAR POINTER MAP----------------------\n");
+    aStarSearchPointerMap(map_ptr, x_size, y_size, src, dest);
+    printf("\n--------------------3D A STAR POINTER MAP----------------------\n");
+    aStarSearch3DPointerMap(map_ptr, x_size, y_size, src, target_traj);
     delete map_ptr;
     
 
