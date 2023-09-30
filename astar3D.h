@@ -1,5 +1,5 @@
 /**
- * @file 3dastar.h
+ * @file astar3D.h
  * @author Siddharth Saha (sahasiddharth611@gmail.com)
  * @brief
  * @version 1.0
@@ -159,7 +159,6 @@ void aStarSearch3D(
     }
 
     Grid djikstra_as_heuristic = getDjikstraAsHeuristic(map, target_traj);
-    // Grid djikstra_as_heuristic = Grid(y_size, std::vector<int>(x_size, 0));
 
     // Defining lambda functions for convenience
     auto getgval = [&g](const Node &n)
