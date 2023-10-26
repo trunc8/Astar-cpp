@@ -30,23 +30,32 @@ Point operator-(const Point &q1, const Point &q2)
     return Point(q1.x - q2.x, q1.y - q2.y);
 }
 
+Point operator*(const Point &q1, double d)
+{
+    return Point(d * q1.x, d * q1.y);
+}
+
 bool isPointInsideObstacle(std::vector<Polygon> obstacles, Point p)
 {
     for (auto obstacle : obstacles)
     {
+        bool is_inside = true;
         for (int i = 0; i < obstacle.num_points - 1; i++)
         {
-            Point v1 = obstacle.points[i] - obstacle.points[i];
+            Point v1 = obstacle.points[i + 1] - obstacle.points[i];
             Point v2 = obstacle.points[i + 1] - p;
             // Cross product
             if (v1.x * v2.y - v1.y * v2.x > 0)
-                continue; // It's not inside this polygon
+            {
+                is_inside = false; // It's not inside this polygon
+                break;
+            }
         }
-        // If it avoided the "continue" and reached this line, 
-        // point is inside the obstacle. No more checking needed
-        return true;
+        // If it proved to pass the polygon interior check everytime,
+        // Then point is inside this polygon. Just return true
+        if (is_inside)
+            return true;
     }
-    // This line will only be reached if "continue" was called each time
-    // Meaning that point isn't inside any of the obstacles
+    // If true wasn't returned for any of the polygons above
     return false;
 }

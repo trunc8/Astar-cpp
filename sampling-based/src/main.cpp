@@ -10,11 +10,9 @@
 #include "utils.h"
 #include "rrt.h"
 
-
-
 const int WIDTH = 800;
 const int HEIGHT = 600;
-const int RADIUS = 7;
+const int RADIUS = 3;
 
 Point start, stop;
 std::vector<Point> nodes;
@@ -28,6 +26,16 @@ sf::CircleShape endingPoint;
 std::random_device rd;                                                 // obtain a random number from hardware
 std::mt19937 gen(rd());                                                // seed the generator
 std::uniform_int_distribution<> distr_w(0, WIDTH), distr_h(0, HEIGHT); // define the range
+
+const int EPS = 20;
+std::vector<Node> node_list;
+
+enum status
+{
+    REACHED,
+    ADVANCED,
+    TRAPPED
+};
 
 void init()
 {
@@ -57,17 +65,6 @@ void init()
     }
 }
 
-
-const int EPS = 20;
-std::vector<Node> node_list;
-
-enum status
-{
-    REACHED,
-    ADVANCED,
-    TRAPPED
-};
-
 void NEW_CONFIG(const Node &q_rand, const Node &q_near, Node &q_new)
 {
     q_new = q_near + (q_rand - q_near) * (EPS / dist(q_rand, q_near));
@@ -92,9 +89,16 @@ status EXTEND(std::vector<Node> &node_list, Node &q_rand, const Node &q_goal)
         q_new = q_near;
     }
     else
-    {        
+    {
         NEW_CONFIG(q_rand, q_near, q_new);
     }
+
+    if (isPointInsideObstacle(obstacles, q_new.pt))
+    {
+        std::cout << "Inside obstacle" << std::endl;
+        return TRAPPED;
+    }
+
     node_list.push_back(q_new);
     q_new.parent = &q_near;
     if (dist(q_new, q_goal) < EPS)
@@ -108,6 +112,7 @@ status EXTEND(std::vector<Node> &node_list, Node &q_rand, const Node &q_goal)
         std::cout << "Advanced" << std::endl;
         return ADVANCED;
     }
+
     std::cout << "Trapped" << std::endl;
     return TRAPPED;
 }
@@ -120,11 +125,11 @@ void draw(sf::RenderWindow &window)
     for (auto &poly : polygons)
         window.draw(poly);
 
-    for(int i=0; i<node_list.size(); i++)
+    for (int i = 0; i < node_list.size(); i++)
     {
-        nodeCircle.setPosition(node_list[i].x, node_list[i].y);
+        nodeCircle.setPosition(node_list[i].pt.x, node_list[i].pt.y);
         nodeCircle.setRadius(RADIUS);
-        nodeCircle.setFillColor(sf::Color(120, 120, 0));
+        nodeCircle.setFillColor(sf::Color(220, 220, 0));
         window.draw(nodeCircle);
     }
 
@@ -133,7 +138,7 @@ void draw(sf::RenderWindow &window)
 
     sf::Vertex line[2];
     line[0].position = sf::Vector2f(start.x, start.y);
-    line[0].color  = sf::Color::Red;
+    line[0].color = sf::Color::Red;
     line[1].position = sf::Vector2f(stop.x, stop.y);
     line[1].color = sf::Color::Red;
 
@@ -143,14 +148,10 @@ void draw(sf::RenderWindow &window)
 
 status runRRT(sf::RenderWindow &window)
 {
-    Node q_init, q_goal;
-    q_init.x = start.x;
-    q_init.y = start.y;
+    Node q_init{start}, q_goal{stop};
     q_init.parent = nullptr;
-    q_goal.x = stop.x;
-    q_goal.y = stop.y;
     int K = 1000;
-    
+
     node_list.push_back(q_init);
     for (int k = 0; k < K; k++)
     {
@@ -166,19 +167,17 @@ status runRRT(sf::RenderWindow &window)
     return TRAPPED;
 }
 
-
 int main()
 {
     sf::RenderWindow window{{WIDTH, HEIGHT}, "Longjump Project"};
-    window.setFramerateLimit(20);
+    window.setFramerateLimit(50);
 
     init();
 
-    Point p{230,800};
-    std::cout << isPointInsideObstacle(obstacles, p) << std::endl;
+    // Point p{230, 800};
+    // std::cout << isPointInsideObstacle(obstacles, p) << std::endl;
 
-    // status s = runRRT(window);
-    // std::cout << s << std::endl;
+    status s = runRRT(window);
 
     // while (window.isOpen())
     // {

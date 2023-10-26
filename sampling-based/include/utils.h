@@ -25,6 +25,8 @@ Point operator+(const Point &q1, const Point &q2);
 
 Point operator-(const Point &q1, const Point &q2);
 
+Point operator*(const Point &q1, double d);
+
 struct Polygon
 {
     std::vector<Point> points; // Assumes clockwise/anti-clockwise points input
