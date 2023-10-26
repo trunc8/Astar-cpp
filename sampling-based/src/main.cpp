@@ -174,9 +174,6 @@ int main()
 
     init();
 
-    // Point p{230, 800};
-    // std::cout << isPointInsideObstacle(obstacles, p) << std::endl;
-
     status s = runRRT(window);
 
     // while (window.isOpen())
