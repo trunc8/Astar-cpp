@@ -1,7 +1,7 @@
 /**
  * @file utils.h
  * @author Siddharth Saha (sahasiddharth611@gmail.com)
- * @brief Utility definitions
+ * @brief Utility declarations
  * @version 1.0
  * @date 2023-10-25
  */
