@@ -188,25 +188,35 @@ int main()
 
     init();
 
-    status s = runRRT(window);
+    Node q_init{start}, q_goal{stop};
+    Node q_rand;
+    q_init.parent = nullptr;
+    int K = 1000;
 
-    // while (window.isOpen())
-    // {
-    //     sf::CircleShape shape(50.f);
-    //     shape.setFillColor(sf::Color(100, 250, 50));
-    //     window.draw(shape);
-    //     for (auto event = sf::Event{}; window.pollEvent(event);)
-    //     {
-    //         if (event.type == sf::Event::Closed)
-    //         {
-    //             window.close();
-    //             return 0;
-    //             exit(0);
-    //         }
-    //     }
+    node_list.push_back(q_init);
+    status s = ADVANCED;
 
-    //     window.clear();
-    //     draw(window);
-    //     window.display();
-    // }
+    while (window.isOpen())
+    {
+        if (s != REACHED)
+        {
+            if (rand() * 1.0 / RAND_MAX < GOAL_BIAS)
+                q_rand = q_goal;
+            else
+                q_rand = Node(distr_w(gen), distr_h(gen));
+            s = EXTEND(node_list, q_rand, q_goal);
+        }
+        for (auto event = sf::Event{}; window.pollEvent(event);)
+        {
+            if (event.type == sf::Event::Closed)
+            {
+                window.close();
+                return 0;
+                exit(0);
+            }
+        }
+        window.clear();
+        draw(window);
+        window.display();
+    }
 }
