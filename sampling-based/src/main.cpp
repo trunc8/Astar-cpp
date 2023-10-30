@@ -12,7 +12,7 @@
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
-const int RADIUS = 3;
+const int RADIUS = 1;
 
 Point start, stop;
 std::vector<Point> nodes;
@@ -28,6 +28,7 @@ std::mt19937 gen(rd());                                                // seed t
 std::uniform_int_distribution<> distr_w(0, WIDTH), distr_h(0, HEIGHT); // define the range
 
 const int EPS = 20;
+const double GOAL_BIAS = 0.1;
 std::vector<Node> node_list;
 
 enum status
@@ -99,8 +100,8 @@ status EXTEND(std::vector<Node> &node_list, Node &q_rand, const Node &q_goal)
         return TRAPPED;
     }
 
+    q_new.parent = new Node(q_near.pt.x, q_near.pt.y);
     node_list.push_back(q_new);
-    q_new.parent = &q_near;
     if (dist(q_new, q_goal) < EPS)
     {
         std::cout << "Reached" << std::endl;
@@ -127,21 +128,30 @@ void draw(sf::RenderWindow &window)
 
     for (int i = 0; i < node_list.size(); i++)
     {
+        Node *parent_node = node_list[i].parent;
         nodeCircle.setPosition(node_list[i].pt.x, node_list[i].pt.y);
         nodeCircle.setRadius(RADIUS);
         nodeCircle.setFillColor(sf::Color(220, 220, 0));
         window.draw(nodeCircle);
+
+        if (parent_node != nullptr)
+        {
+            const std::array<sf::Vertex, 2> line =
+                {sf::Vertex(sf::Vector2f(node_list[i].pt.x, node_list[i].pt.y), sf::Color::Red),
+                 sf::Vertex(sf::Vector2f(parent_node->pt.x, parent_node->pt.y), sf::Color::Red)};
+
+            window.draw(line.data(), line.size(), sf::Lines, sf::RenderStates::Default);
+        }
     }
 
     window.draw(startingPoint);
     window.draw(endingPoint);
 
-    sf::Vertex line[2];
-    line[0].position = sf::Vector2f(start.x, start.y);
-    line[0].color = sf::Color::Red;
-    line[1].position = sf::Vector2f(stop.x, stop.y);
-    line[1].color = sf::Color::Red;
-
+    // sf::Vertex line[2];
+    // line[0].position = sf::Vector2f(start.x, start.y);
+    // line[0].color = sf::Color::Red;
+    // line[1].position = sf::Vector2f(stop.x, stop.y);
+    // line[1].color = sf::Color::Red;
     // sf::Vertex line[] = {{{x1, y1}, color}, {{x2, y2}, color}};
     // window.draw(line);
 }
@@ -149,6 +159,7 @@ void draw(sf::RenderWindow &window)
 status runRRT(sf::RenderWindow &window)
 {
     Node q_init{start}, q_goal{stop};
+    Node q_rand;
     q_init.parent = nullptr;
     int K = 1000;
 
@@ -156,7 +167,10 @@ status runRRT(sf::RenderWindow &window)
     for (int k = 0; k < K; k++)
     {
         // RANDOM_CONFIG
-        Node q_rand(distr_w(gen), distr_h(gen));
+        if (rand() * 1.0 / RAND_MAX < GOAL_BIAS)
+            q_rand = q_goal;
+        else
+            q_rand = Node(distr_w(gen), distr_h(gen));
         status s = EXTEND(node_list, q_rand, q_goal);
         window.clear();
         draw(window);

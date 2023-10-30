@@ -26,6 +26,11 @@ struct Node
     }
 };
 
+void printNode(const Node& q)
+{
+    std::cout << "Coordinates: " << q.pt.x << "\t" << q.pt.y << std::endl;
+}
+
 double dist(const Node &q1, const Node &q2)
 {
     return sqrt(pow(q1.pt.x - q2.pt.x, 2) + pow(q1.pt.y - q2.pt.y, 2));
