@@ -7,25 +7,35 @@
  */
 #include "utils.h"
 
-Point operator+(const Point &q1, const Point &q2)
+void printNode(const Node& q)
 {
-    return Point(q1.x + q2.x, q1.y + q2.y);
+    std::cout << "Coordinates: " << q.x << "\t" << q.y << std::endl;
 }
 
-Point operator-(const Point &q1, const Point &q2)
+double dist(const Node &q1, const Node &q2)
 {
-    return Point(q1.x - q2.x, q1.y - q2.y);
+    return sqrt(pow(q1.x - q2.x, 2) + pow(q1.y - q2.y, 2));
 }
 
-Point operator*(const Point &q1, double d)
+Node operator+(const Node &q1, const Node &q2)
 {
-    return Point(d * q1.x, d * q1.y);
+    return Node(q1.x + q2.x, q1.y + q2.y);
+}
+
+Node operator-(const Node &q1, const Node &q2)
+{
+    return Node(q1.x - q2.x, q1.y - q2.y);
+}
+
+Node operator*(const Node &q1, double d)
+{
+    return Node(d * q1.x, d * q1.y);
 }
 
 /**
- * @brief Check if queried point is inside obstacle
+ * @brief Check if queried node is inside obstacle
  *
- * @details Checking cross product between vectors. The vector between point and vertex
+ * @details Checking cross product between vectors. The vector between node and vertex
  * should lie on right of the corresponding side of polygon (i.e. cross product should be -ve)
  * Note: Polygon vertices need to be defined clockwise or the effect will reverse.
  *
@@ -34,15 +44,15 @@ Point operator*(const Point &q1, double d)
  * @return true
  * @return false
  */
-bool isPointInsideObstacle(std::vector<Polygon> obstacles, Point p)
+bool isNodeInsideObstacle(std::vector<Polygon> obstacles, Node q)
 {
     for (auto obstacle : obstacles)
     {
         bool is_inside = true;
-        for (int i = 0; i < obstacle.num_points - 1; i++)
+        for (int i = 0; i < obstacle.num_nodes - 1; i++)
         {
-            Point v1 = obstacle.points[i + 1] - obstacle.points[i];
-            Point v2 = obstacle.points[i + 1] - p;
+            Node v1 = obstacle.nodes[i + 1] - obstacle.nodes[i];
+            Node v2 = obstacle.nodes[i + 1] - q;
             // Cross product
             if (v1.x * v2.y - v1.y * v2.x > 0)
             {

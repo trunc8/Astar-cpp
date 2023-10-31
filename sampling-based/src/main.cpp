@@ -8,21 +8,20 @@
 
 #include <SFML/Graphics.hpp>
 #include "utils.h"
-#include "rrt.h"
 
 const int WIDTH = 800;
 const int HEIGHT = 600;
 const int RADIUS = 1;
 
-Point start, stop;
-std::vector<Point> nodes;
+Node start, stop;
+std::vector<Node> nodes;
 
 std::vector<Polygon> obstacles;
 std::vector<sf::ConvexShape> polygons;
 std::vector<Node> node_list;
 
-sf::CircleShape startingPoint;
-sf::CircleShape endingPoint;
+sf::CircleShape startingNode;
+sf::CircleShape endingNode;
 
 std::random_device rd;                                                 // obtain a random number from hardware
 std::mt19937 gen(rd());                                                // seed the generator
@@ -40,28 +39,28 @@ enum status
 
 void init()
 {
-    start = Point(100, 20);
-    stop = Point(500, 20);
+    start = Node(100, 20);
+    stop = Node(500, 20);
 
-    startingPoint.setPosition(start.x, start.y);
-    endingPoint.setPosition(stop.x, stop.y);
-    startingPoint.setRadius(5*RADIUS);
-    endingPoint.setRadius(5*RADIUS);
-    startingPoint.setFillColor(sf::Color(255, 0, 255));
-    endingPoint.setFillColor(sf::Color(0, 255, 0));
+    startingNode.setPosition(start.x, start.y);
+    endingNode.setPosition(stop.x, stop.y);
+    startingNode.setRadius(5 * RADIUS);
+    endingNode.setRadius(5 * RADIUS);
+    startingNode.setFillColor(sf::Color(255, 0, 255));
+    endingNode.setFillColor(sf::Color(0, 255, 0));
 
-    std::vector<Point> obstacle = {Point(200, 0), Point(250, 0), Point(250, 400), Point(200, 400), Point(200, 0)};
+    std::vector<Node> obstacle = {Node(200, 0), Node(250, 0), Node(250, 400), Node(200, 400), Node(200, 0)};
     obstacles.push_back(Polygon(obstacle, obstacle.size()));
 
     polygons.resize(obstacles.size());
     for (int i = 0; i < obstacles.size(); i++)
     {
-        polygons[i].setPointCount(obstacles[i].num_points);
+        polygons[i].setPointCount(obstacles[i].num_nodes);
         polygons[i].setFillColor(
             sf::Color(0, 0, 125));
-        for (int j = 0; j < obstacles[i].num_points; j++)
+        for (int j = 0; j < obstacles[i].num_nodes; j++)
         {
-            polygons[i].setPoint(j, sf::Vector2f(obstacles[i].points[j].x, obstacles[i].points[j].y));
+            polygons[i].setPoint(j, sf::Vector2f(obstacles[i].nodes[j].x, obstacles[i].nodes[j].y));
         }
     }
 }
@@ -94,18 +93,18 @@ status EXTEND(std::vector<Node> &node_list, Node &q_rand, const Node &q_goal)
         NEW_CONFIG(q_rand, q_near, q_new);
     }
 
-    if (isPointInsideObstacle(obstacles, q_new.pt))
+    if (isNodeInsideObstacle(obstacles, q_new))
     {
         std::cout << "Inside obstacle" << std::endl;
         return TRAPPED;
     }
 
-    q_new.parent = new Node(q_near.pt.x, q_near.pt.y);
+    q_new.parent = new Node(q_near.x, q_near.y);
     node_list.push_back(q_new);
     if (dist(q_new, q_goal) < EPS)
     {
         Node q_final = q_goal;
-        q_final.parent = new Node(q_new.pt.x, q_new.pt.y);
+        q_final.parent = new Node(q_new.x, q_new.y);
         node_list.push_back(q_final);
         std::cout << "Reached" << std::endl;
         return REACHED;
@@ -132,7 +131,7 @@ void draw(sf::RenderWindow &window, std::vector<Node> &node_list)
     for (int i = 0; i < node_list.size(); i++)
     {
         Node *parent_node = node_list[i].parent;
-        nodeCircle.setPosition(node_list[i].pt.x, node_list[i].pt.y);
+        nodeCircle.setPosition(node_list[i].x, node_list[i].y);
         nodeCircle.setRadius(RADIUS);
         nodeCircle.setFillColor(sf::Color(220, 220, 0));
         window.draw(nodeCircle);
@@ -140,15 +139,15 @@ void draw(sf::RenderWindow &window, std::vector<Node> &node_list)
         if (parent_node != nullptr)
         {
             const std::array<sf::Vertex, 2> line =
-                {sf::Vertex(sf::Vector2f(node_list[i].pt.x, node_list[i].pt.y), sf::Color::Red),
-                 sf::Vertex(sf::Vector2f(parent_node->pt.x, parent_node->pt.y), sf::Color::Red)};
+                {sf::Vertex(sf::Vector2f(node_list[i].x, node_list[i].y), sf::Color::Red),
+                 sf::Vertex(sf::Vector2f(parent_node->x, parent_node->y), sf::Color::Red)};
 
             window.draw(line.data(), line.size(), sf::Lines, sf::RenderStates::Default);
         }
     }
 
-    window.draw(startingPoint);
-    window.draw(endingPoint);
+    window.draw(startingNode);
+    window.draw(endingNode);
 }
 
 status runRRT(sf::RenderWindow &window, std::vector<Node> &node_list)
@@ -176,7 +175,7 @@ status runRRT(sf::RenderWindow &window, std::vector<Node> &node_list)
     return TRAPPED;
 }
 
-status runRRTIteration(sf::RenderWindow &window, std::vector<Node> &node_list, const Node &q_init, const Node& q_goal)
+status runRRTIteration(sf::RenderWindow &window, std::vector<Node> &node_list, const Node &q_init, const Node &q_goal)
 {
     Node q_rand;
     if (rand() * 1.0 / RAND_MAX < GOAL_BIAS)
@@ -200,16 +199,18 @@ int main()
     init();
 
     Node q_init{start}, q_goal{stop};
-    
+
     q_init.parent = nullptr;
-    int K = 1000;
+    int K = 10;
+    int k = 0;
 
     node_list.push_back(q_init);
     status s = ADVANCED;
 
     while (window.isOpen())
     {
-        if (s != REACHED)
+        k++;
+        if (s != REACHED and k < K)
         {
             s = runRRTIteration(window, node_list, q_init, q_goal);
         }

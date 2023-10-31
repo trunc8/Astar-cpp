@@ -5,12 +5,12 @@
 TEST(InObstacleTest, InsideAndOutside)
 {
     std::vector<Polygon> obstacles;
-    std::vector<Point> obstacle = {Point(200, 0), Point(250, 0), Point(250, 400), Point(200, 400), Point(200, 0)};
+    std::vector<Node> obstacle = {Node(200, 0), Node(250, 0), Node(250, 400), Node(200, 400), Node(200, 0)};
     obstacles.push_back(Polygon(obstacle, obstacle.size()));
 
-    Point p1{230, 800};
-    EXPECT_EQ(false, isPointInsideObstacle(obstacles, p1));
+    Node q1{230, 800};
+    EXPECT_EQ(false, isNodeInsideObstacle(obstacles, q1));
 
-    Point p2{230, 300};
-    EXPECT_EQ(true, isPointInsideObstacle(obstacles, p2));
+    Node q2{230, 300};
+    EXPECT_EQ(true, isNodeInsideObstacle(obstacles, q2));
 }

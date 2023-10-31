@@ -13,27 +13,41 @@
 #include <algorithm>
 #include <random>
 #include <limits.h>
+#include <cmath>
 
-struct Point
+struct Node
 {
     double x, y;
-    Point() {}
-    Point(double x, double y) : x(x), y(y) {}
+    Node *parent;
+    // std::vector<Node *> children;
+    Node() {}
+    Node(double x, double y) : x(x), y(y) {}
+    const Node &operator=(const Node &q)
+    {
+        this->x = q.x;
+        this->y = q.y;
+        this->parent = q.parent;
+        return *this;
+    }
 };
 
-Point operator+(const Point &q1, const Point &q2);
+void printNode(const Node& q);
 
-Point operator-(const Point &q1, const Point &q2);
+double dist(const Node &q1, const Node &q2);
 
-Point operator*(const Point &q1, double d);
+Node operator+(const Node &q1, const Node &q2);
+
+Node operator-(const Node &q1, const Node &q2);
+
+Node operator*(const Node &q1, double d);
 
 struct Polygon
 {
-    std::vector<Point> points; // Assumes clockwise/anti-clockwise points input
-    int num_points = 0;
+    std::vector<Node> nodes; // Assumes clockwise/anti-clockwise nodes input
+    int num_nodes = 0;
 
     Polygon() {}
-    Polygon(std::vector<Point> points, int size) : points(points), num_points(size) {}
+    Polygon(std::vector<Node> nodes, int size) : nodes(nodes), num_nodes(size) {}
 };
 
-bool isPointInsideObstacle(std::vector<Polygon> obstacles, Point p);
+bool isNodeInsideObstacle(std::vector<Polygon> obstacles, Node q);
