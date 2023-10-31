@@ -19,6 +19,7 @@ std::vector<Point> nodes;
 
 std::vector<Polygon> obstacles;
 std::vector<sf::ConvexShape> polygons;
+std::vector<Node> node_list;
 
 sf::CircleShape startingPoint;
 sf::CircleShape endingPoint;
@@ -29,7 +30,6 @@ std::uniform_int_distribution<> distr_w(0, WIDTH), distr_h(0, HEIGHT); // define
 
 const int EPS = 20;
 const double GOAL_BIAS = 0.1;
-std::vector<Node> node_list;
 
 enum status
 {
@@ -45,9 +45,9 @@ void init()
 
     startingPoint.setPosition(start.x, start.y);
     endingPoint.setPosition(stop.x, stop.y);
-    startingPoint.setRadius(RADIUS);
-    endingPoint.setRadius(RADIUS);
-    startingPoint.setFillColor(sf::Color(120, 0, 0));
+    startingPoint.setRadius(5*RADIUS);
+    endingPoint.setRadius(5*RADIUS);
+    startingPoint.setFillColor(sf::Color(255, 0, 255));
     endingPoint.setFillColor(sf::Color(0, 255, 0));
 
     std::vector<Point> obstacle = {Point(200, 0), Point(250, 0), Point(250, 400), Point(200, 400), Point(200, 0)};
@@ -104,6 +104,9 @@ status EXTEND(std::vector<Node> &node_list, Node &q_rand, const Node &q_goal)
     node_list.push_back(q_new);
     if (dist(q_new, q_goal) < EPS)
     {
+        Node q_final = q_goal;
+        q_final.parent = new Node(q_new.pt.x, q_new.pt.y);
+        node_list.push_back(q_final);
         std::cout << "Reached" << std::endl;
         return REACHED;
     }
@@ -118,7 +121,7 @@ status EXTEND(std::vector<Node> &node_list, Node &q_rand, const Node &q_goal)
     return TRAPPED;
 }
 
-void draw(sf::RenderWindow &window)
+void draw(sf::RenderWindow &window, std::vector<Node> &node_list)
 {
     sf::CircleShape nodeCircle;
 
@@ -146,17 +149,9 @@ void draw(sf::RenderWindow &window)
 
     window.draw(startingPoint);
     window.draw(endingPoint);
-
-    // sf::Vertex line[2];
-    // line[0].position = sf::Vector2f(start.x, start.y);
-    // line[0].color = sf::Color::Red;
-    // line[1].position = sf::Vector2f(stop.x, stop.y);
-    // line[1].color = sf::Color::Red;
-    // sf::Vertex line[] = {{{x1, y1}, color}, {{x2, y2}, color}};
-    // window.draw(line);
 }
 
-status runRRT(sf::RenderWindow &window)
+status runRRT(sf::RenderWindow &window, std::vector<Node> &node_list)
 {
     Node q_init{start}, q_goal{stop};
     Node q_rand;
@@ -173,7 +168,7 @@ status runRRT(sf::RenderWindow &window)
             q_rand = Node(distr_w(gen), distr_h(gen));
         status s = EXTEND(node_list, q_rand, q_goal);
         window.clear();
-        draw(window);
+        draw(window, node_list);
         window.display();
         if (s == REACHED)
             return s;
@@ -181,15 +176,31 @@ status runRRT(sf::RenderWindow &window)
     return TRAPPED;
 }
 
+status runRRTIteration(sf::RenderWindow &window, std::vector<Node> &node_list, const Node &q_init, const Node& q_goal)
+{
+    Node q_rand;
+    if (rand() * 1.0 / RAND_MAX < GOAL_BIAS)
+        q_rand = q_goal;
+    else
+        q_rand = Node(distr_w(gen), distr_h(gen));
+    status s = EXTEND(node_list, q_rand, q_goal);
+    window.clear();
+    draw(window, node_list);
+    window.display();
+    if (s == REACHED)
+        return s;
+    return TRAPPED;
+}
+
 int main()
 {
-    sf::RenderWindow window{{WIDTH, HEIGHT}, "Longjump Project"};
-    window.setFramerateLimit(50);
+    sf::RenderWindow window{{WIDTH, HEIGHT}, "Sampling Planner"};
+    window.setFramerateLimit(1000);
 
     init();
 
     Node q_init{start}, q_goal{stop};
-    Node q_rand;
+    
     q_init.parent = nullptr;
     int K = 1000;
 
@@ -200,12 +211,11 @@ int main()
     {
         if (s != REACHED)
         {
-            if (rand() * 1.0 / RAND_MAX < GOAL_BIAS)
-                q_rand = q_goal;
-            else
-                q_rand = Node(distr_w(gen), distr_h(gen));
-            s = EXTEND(node_list, q_rand, q_goal);
+            s = runRRTIteration(window, node_list, q_init, q_goal);
         }
+        window.clear();
+        draw(window, node_list);
+        window.display();
         for (auto event = sf::Event{}; window.pollEvent(event);)
         {
             if (event.type == sf::Event::Closed)
@@ -215,8 +225,5 @@ int main()
                 exit(0);
             }
         }
-        window.clear();
-        draw(window);
-        window.display();
     }
 }
