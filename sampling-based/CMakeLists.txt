@@ -39,15 +39,15 @@ install(TARGETS sampling_proj)
 enable_testing()
 
 add_executable(
-  hello_test
-  src/hello_test.cc
+  unit_tests
+  src/unit_tests.cc
   src/utils.cpp
 )
-target_include_directories(hello_test PRIVATE include)
+target_include_directories(unit_tests PRIVATE include)
 target_link_libraries(
-  hello_test
+  unit_tests
   GTest::gtest_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(hello_test)
+gtest_discover_tests(unit_tests)

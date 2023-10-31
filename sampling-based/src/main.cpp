@@ -201,7 +201,7 @@ int main()
     Node q_init{start}, q_goal{stop};
 
     q_init.parent = nullptr;
-    int K = 10;
+    int K = 1000;
     int k = 0;
 
     node_list.push_back(q_init);
